@@ -312,13 +312,23 @@ def train():
 
         step += 1
         if step % 500 == 0:
+          f.write("conv2,"+str(np.sum(mask['conv2']))+"\n")
+          f.write("local3,"+str(np.sum(mask['local3']))+"\n")
+          f.write("local4,"+str(np.sum(mask['local4']))+"\n")
           temp_acc = evaluate(step,mask)
           if temp_acc != accuracy:
             f.write("{},{},{}\n".format(step, step_loss, temp_acc))
             print ("Write Record! {} _ {}".format(accuracy,temp_acc))
             accuracy = temp_acc
-          if temp_acc > 0.86:
+
+        if step % 10 == 0:
+          if current_min_loss[0] - step_loss > 1e-5:
+            current_min_loss = [step_loss,step]
+          elif step - current_min_loss[1] > 10000:
+            print (step,current_min_loss)
+            f.write(str(step)+","+str(current_min_loss)+"\n")
             converge = True
+
 
 def main(argv=None):  # pylint: disable=unused-argument
   cifar10_DSD.maybe_download_and_extract()
